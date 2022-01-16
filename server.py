@@ -1,6 +1,6 @@
-from mesa.visualization.modules import CanvasGrid
+from mesa.visualization.modules import CanvasGrid, ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.modules import ChartModule
+from mesa.visualization.UserParam import UserSettableParameter
 
 from model import PreyPredatorModel
 
@@ -27,7 +27,12 @@ chart = ChartModule([{
     'Color': 'red'
 }], data_collector_name='datacollector')
 
-model_params = {}
+model_params = {
+    'initial_prey': UserSettableParameter('slider', 'Initial Prey', 100, 10, 300),
+    'initial_predator': UserSettableParameter('slider', 'Initial Predator', 30, 10, 300),
+    'prey_reproduction_chance': UserSettableParameter('slider', 'Prey reproduction chance', 0.05, 0.01, 1.0, 0.01),
+    'predator_death_chance': UserSettableParameter('slider', 'Predator death chance', 0.05, 0.01, 1.0, 0.01)
+}
 
 # Create the server, and pass the grid and the graph
 server = ModularServer(PreyPredatorModel, [grid, chart], 'Prey-Predator Model', model_params)
