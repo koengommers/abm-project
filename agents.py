@@ -1,3 +1,4 @@
+import math
 from mesa import Agent
 import random
 
@@ -7,9 +8,13 @@ class Animal(Agent):
 
         self.pos = pos
 
-    def random_move(self):
-        neighbors = self.model.grid.get_neighborhood(self.pos, moore=True)
-        self.model.grid.move_agent(self, random.choice(neighbors))
+    def random_move(self, max_distance=25):
+        distance = random.uniform(0, max_distance)
+        direction = random.uniform(0, 360)
+        dx = distance*math.sin(math.radians(direction))
+        dy = distance*math.cos(math.radians(direction))
+        x, y = self.pos
+        self.model.space.move_agent(self, (x + dx, y + dy))
 
     def reproduce(self):
         self.model.new_agent(self.__class__, self.pos)
@@ -17,12 +22,12 @@ class Animal(Agent):
     def die(self):
         self.model.remove_agent(self)
 
-    def on_location(self, agent_type=None):
-        this_cell = self.model.grid.get_cell_list_contents([self.pos])
+    def on_location(self, agent_type=None, radius=25):
+        neighbors = self.model.space.get_neighbors(self.pos, radius)
         if agent_type is None:
-            return this_cell
+            return neighbors
         else:
-            return [agent for agent in this_cell if isinstance(agent, agent_type)]
+            return [agent for agent in neighbors if isinstance(agent, agent_type)]
 
 class Prey(Animal):
     def __init__(self, unique_id, model, pos):
@@ -36,10 +41,10 @@ class Prey(Animal):
 
         self.energy -= 1
 
-        grass = self.on_location(Grass)[0]
-        if grass.fully_grown:
-            self.energy += self.model.prey_gain_from_food
-            grass.eaten()
+        # grass = self.on_location(Grass)[0]
+        # if grass.fully_grown:
+        #     self.energy += self.model.prey_gain_from_food
+        #     grass.eaten()
 
         if self.energy < 0:
             self.die()

@@ -1,10 +1,11 @@
 import math
-from mesa.visualization.modules import CanvasGrid, ChartModule
+from mesa.visualization.modules import ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import UserSettableParameter
 
 from model import PreyPredatorModel
 from agents import Prey, Predator, Grass
+from visualization import CanvasContinuous
 
 def animal_portrayal(color):
     return {
@@ -12,7 +13,7 @@ def animal_portrayal(color):
         'Color': color,
         'Filled': 'true',
         'Layer': 1,
-        'r': 0.5
+        'r': 5
     }
 
 # You can change this to whatever ou want. Make sure to make the different types
@@ -39,8 +40,8 @@ def agent_portrayal(agent):
             'h': 1
         }
 
-# Create a grid of 20 by 20 cells, and display it as 500 by 500 pixels
-grid = CanvasGrid(agent_portrayal, 20, 20, 500, 500)
+# Create a 500 by 500 pixels canvas for the space
+grid = CanvasContinuous(agent_portrayal, 500, 500)
 
 # Create a dynamic linegraph
 population_chart = ChartModule([{
