@@ -7,12 +7,23 @@ class Animal(Agent):
         super().__init__(unique_id, model)
 
         self.pos = pos
+        self.direction = random.uniform(0, 360)
 
-    def random_move(self, max_distance=20):
+    def random_move(self, max_distance=20, directed=True, max_turn=10):
         distance = random.uniform(0, max_distance)
-        direction = random.uniform(0, 360)
+        if directed:
+            self.direction += random.uniform(-max_turn, max_turn)
+        else:
+            self.direction = random.uniform(0, 360)
         x, y = self.pos
-        new_pos = move_coordinates(x, y, direction, distance)
+        new_pos = move_coordinates(x, y, self.direction, distance)
+        self.model.space.move_agent(self, new_pos)
+
+    def directed_move(self, direction, max_distance=20):
+        distance = random.uniform(0, max_distance)
+        self.direction = direction
+        x, y = self.pos
+        new_pos = move_coordinates(x, y, self.direction, distance)
         self.model.space.move_agent(self, new_pos)
 
     def reproduce(self):
