@@ -1,6 +1,6 @@
 from mesa import Agent
 import random
-from utils import move_coordinates
+from utils import move_coordinates, heading_to_angle
 
 class Animal(Agent):
     def __init__(self, unique_id, model, pos):
@@ -19,8 +19,8 @@ class Animal(Agent):
         new_pos = move_coordinates(x, y, self.direction, distance)
         self.model.space.move_agent(self, new_pos)
 
-    def directed_move(self, direction, max_distance=20):
-        distance = random.uniform(0, max_distance)
+    def directed_move(self, direction, min_distance=0, max_distance=20):
+        distance = random.uniform(min_distance, max_distance)
         self.direction = direction
         x, y = self.pos
         new_pos = move_coordinates(x, y, self.direction, distance)
@@ -46,12 +46,18 @@ class Prey(Animal):
 
     def step(self):
         in_sight = self.model.space.get_neighbors(self.pos, radius=20)
+        prey_in_sight = [prey for prey in in_sight if isinstance(prey, Prey)]
+        #heading = self.model.space.get_heading(self.pos, random.choice(prey_in_sight).pos)
         grass_in_sight = [grass for grass in in_sight if isinstance(grass, Grass) and grass.fully_grown]
-        if grass_in_sight:
-            self.model.space.move_agent(self, random.choice(grass_in_sight).pos)
+
+        if prey_in_sight:
+            target = random.choice(prey_in_sight)
+            heading = self.model.space.get_heading(self.pos, target.pos)
+            distance = self.model.space.get_distance(self.pos, target.pos)
+            self.directed_move(heading_to_angle(heading[0], heading[1]), min_distance=20 - distance)
         else:
-            self.random_move(directed=True)
-        #self.random_move()
+            self.random_move()
+
         if random.random() < self.model.prey_reproduction_chance:
             self.reproduce()
 
