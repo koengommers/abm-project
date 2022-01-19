@@ -1,6 +1,6 @@
-import math
 from mesa import Agent
 import random
+from utils import move_coordinates
 
 class Animal(Agent):
     def __init__(self, unique_id, model, pos):
@@ -11,10 +11,9 @@ class Animal(Agent):
     def random_move(self, max_distance=25):
         distance = random.uniform(0, max_distance)
         direction = random.uniform(0, 360)
-        dx = distance*math.sin(math.radians(direction))
-        dy = distance*math.cos(math.radians(direction))
         x, y = self.pos
-        self.model.space.move_agent(self, (x + dx, y + dy))
+        new_pos = move_coordinates(x, y, direction, distance)
+        self.model.space.move_agent(self, new_pos)
 
     def reproduce(self):
         self.model.new_agent(self.__class__, self.pos)
@@ -41,10 +40,10 @@ class Prey(Animal):
 
         self.energy -= 1
 
-        # grass = self.on_location(Grass)[0]
-        # if grass.fully_grown:
-        #     self.energy += self.model.prey_gain_from_food
-        #     grass.eaten()
+        fully_grown_grass = [grass for grass in self.on_location(Grass) if grass.fully_grown]
+        if len(fully_grown_grass) > 0:
+            self.energy += self.model.prey_gain_from_food
+            random.choice(fully_grown_grass).eaten()
 
         if self.energy < 0:
             self.die()

@@ -32,12 +32,11 @@ def agent_portrayal(agent):
             colors = ['#ffffff', '#bfe6bf', '#80cc80', '#40b340'][::-1]
             color = colors[math.ceil((agent.countdown+1)/(growth_time+1)*4)-1]
         return {
-            'Shape': 'rect',
+            'Shape': 'circle',
             'Color': color,
             'Filled': 'true',
             'Layer': 0,
-            'w': 1,
-            'h': 1
+            'r': 3
         }
 
 # Create a 500 by 500 pixels canvas for the space
@@ -62,12 +61,14 @@ energy_chart = ChartModule([{
 
 model_params = {
     'initial_prey': UserSettableParameter('slider', 'Initial Prey', 100, 10, 300),
-    'initial_predator': UserSettableParameter('slider', 'Initial Predator', 30, 10, 300),
+    'initial_predator': UserSettableParameter('slider', 'Initial Predator', 20, 10, 300),
     'prey_reproduction_chance': UserSettableParameter('slider', 'Prey reproduction chance', 0.05, 0.01, 1.0, 0.01),
     'predator_death_chance': UserSettableParameter('slider', 'Predator death chance', 0.05, 0.01, 1.0, 0.01),
-    'food_regrowth_time': UserSettableParameter('slider', 'Food regrowth time', 20, 1, 50),
-    'prey_gain_from_food': UserSettableParameter('slider', 'Prey gain from food', 4, 1, 50),
-    'predator_gain_from_food': UserSettableParameter('slider', 'Wolf gain from food', 20, 1, 50),
+    'food_regrowth_time': UserSettableParameter('slider', 'Food regrowth time', 30, 1, 50),
+    'prey_gain_from_food': UserSettableParameter('slider', 'Prey gain from food', 10, 1, 50),
+    'predator_gain_from_food': UserSettableParameter('slider', 'Predator gain from food', 30, 1, 50),
+    'grass_clusters': UserSettableParameter('slider', 'Grass clusters', 15, 1, 50),
+    'grass_cluster_size': UserSettableParameter('slider', 'Grass cluster size', 400, 10, 1000, 10),
 }
 
 # Create the server, and pass the grid and the graph

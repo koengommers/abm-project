@@ -1,4 +1,4 @@
-var CanvasContinuousModule = function(canvas_width, canvas_height, grid_width, grid_height) {
+var CanvasContinuousModule = function(canvas_width, canvas_height) {
 	// Create the element
 	// ------------------
 
