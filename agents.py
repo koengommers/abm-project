@@ -8,7 +8,7 @@ class Animal(Agent):
 
         self.pos = pos
 
-    def random_move(self, max_distance=25):
+    def random_move(self, max_distance=20):
         distance = random.uniform(0, max_distance)
         direction = random.uniform(0, 360)
         x, y = self.pos
@@ -21,7 +21,7 @@ class Animal(Agent):
     def die(self):
         self.model.remove_agent(self)
 
-    def on_location(self, agent_type=None, radius=25):
+    def on_location(self, agent_type=None, radius=10):
         neighbors = self.model.space.get_neighbors(self.pos, radius)
         if agent_type is None:
             return neighbors
@@ -34,7 +34,13 @@ class Prey(Animal):
         self.energy = 2*self.model.prey_gain_from_food
 
     def step(self):
-        self.random_move()
+        in_sight = self.model.space.get_neighbors(self.pos, radius=20)
+        grass_in_sight = [grass for grass in in_sight if isinstance(grass, Grass) and grass.fully_grown]
+        if grass_in_sight:
+            self.model.space.move_agent(self, random.choice(grass_in_sight).pos)
+        else:
+            self.random_move(directed=True)
+        #self.random_move()
         if random.random() < self.model.prey_reproduction_chance:
             self.reproduce()
 
@@ -85,4 +91,3 @@ class Grass(Agent):
 
     def eaten(self):
         self.fully_grown = False
-
