@@ -9,7 +9,7 @@ class Animal(Agent):
         self.pos = pos
         self.direction = random.uniform(0, 360)
 
-    def random_move(self, max_distance=20, directed=True, max_turn=10):
+    def random_move(self, max_distance=25, directed=True, max_turn=10):
         distance = random.uniform(0, max_distance)
         if directed:
             self.direction += random.uniform(-max_turn, max_turn)
@@ -19,7 +19,7 @@ class Animal(Agent):
         new_pos = move_coordinates(x, y, self.direction, distance)
         self.model.space.move_agent(self, new_pos)
 
-    def directed_move(self, direction, min_distance=0, max_distance=20):
+    def directed_move(self, direction, min_distance=0, max_distance=25):
         distance = random.uniform(min_distance, max_distance)
         self.direction = direction
         x, y = self.pos
@@ -44,17 +44,35 @@ class Prey(Animal):
         super().__init__(unique_id, model, pos)
         self.energy = 2*self.model.prey_gain_from_food
 
+    def seperate(self, distance, agent_type):
+        in_sight = self.model.space.get_neighbors(self.pos, radius=distance)#TODO: Turn into parameter
+        agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type)]
+        seperate_vector_agent = [0, 0]
+        for agent in agent_in_sight:
+            heading = self.model.space.get_heading(self.pos, agent.pos)
+            seperate_vector_agent[0] -= heading[0]
+            seperate_vector_agent[1] -= heading[1]
+        return seperate_vector_agent
+
     def step(self):
-        in_sight = self.model.space.get_neighbors(self.pos, radius=20)
+        in_sight = self.model.space.get_neighbors(self.pos, radius=25)
         prey_in_sight = [prey for prey in in_sight if isinstance(prey, Prey)]
+        predator_in_sight = [pred for pred in in_sight if isinstance(pred, Predator)]
         #heading = self.model.space.get_heading(self.pos, random.choice(prey_in_sight).pos)
         grass_in_sight = [grass for grass in in_sight if isinstance(grass, Grass) and grass.fully_grown]
+
+        # Seperate: Don't get to close to other prey
+        seperate_vector_prey = self.seperate(15, Prey)
+
+        # Seperate: move away from predators
+        seperate_vector_predators = self.seperate(25, Predator)
+
 
         if prey_in_sight:
             target = random.choice(prey_in_sight)
             heading = self.model.space.get_heading(self.pos, target.pos)
             distance = self.model.space.get_distance(self.pos, target.pos)
-            self.directed_move(heading_to_angle(heading[0], heading[1]), min_distance=20 - distance)
+            self.directed_move(heading_to_angle(heading[0], heading[1]), min_distance=25 - distance)
         else:
             self.random_move()
 
