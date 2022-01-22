@@ -18,9 +18,8 @@ class Animal(Agent):
 
     def directed_move(self, direction, min_distance=0, max_distance=25):
         distance = random.uniform(min_distance, max_distance)
-        self.direction = direction
         x, y = self.pos
-        new_pos = move_coordinates(x, y, self.direction, distance)
+        new_pos = move_coordinates(x, y, direction, distance)
         self.model.space.move_agent(self, new_pos)
 
     def reproduce(self):
@@ -41,36 +40,38 @@ class Prey(Animal):
         super().__init__(unique_id, model, pos)
         self.energy = 2*self.model.prey_gain_from_food
 
-    def seperate(self, distance, agent_type):
+    def get_vector(self, agent_type, distance=25, direction=1, grass=False):
         in_sight = self.model.space.get_neighbors(self.pos, radius=distance)
-        agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type)]
-        seperate_vector_agent = np.zeros(2)
+        if grass:
+            agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type) and agent.fully_grown]
+        else:
+            agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type)]
+
+        cohere_vector_agent = np.zeros(2)
         for agent in agent_in_sight:
-            seperate_vector_agent -= self.model.space.get_heading(self.pos, agent.pos)
-        return seperate_vector_agent
+            cohere_vector_agent += direction * np.array(self.model.space.get_heading(self.pos, agent.pos))
+        return cohere_vector_agent
 
     def step(self):
-        in_sight = self.model.space.get_neighbors(self.pos, radius=25)
-        prey_in_sight = [prey for prey in in_sight if isinstance(prey, Prey)]
-        predator_in_sight = [pred for pred in in_sight if isinstance(pred, Predator)]
-        grass_in_sight = [grass for grass in in_sight if isinstance(grass, Grass) and grass.fully_grown]
-
-        # Seperate: Don't get to close to other prey
-        seperate_vector_prey = self.seperate(self.model.min_distance_between_prey, Prey)
+        # Seperate: Don't get to close to other prey, TODO: might massively slow down program when herd is big
+        seperate_vector_prey = self.get_vector(Prey, self.model.min_distance_between_prey, -1)
 
         # Seperate: move away from predators
-        seperate_vector_predators = self.seperate(self.model.prey_sight_on_pred, Predator)
+        seperate_vector_predators = self.get_vector(Predator, self.model.prey_sight_on_pred, -1)
 
-        # Move towards other prey in area
-        cohere_vector = np.zeros(2)
-        for prey in prey_in_sight:
-            heading = self.model.space.get_heading(self.pos, prey.pos)
-            cohere_vector += heading
+        # Move towards other prey in area, TODO: might massively slow down program when herd is big
+        cohere_vector = self.get_vector(Prey, 25)
+        # Move towards grass, only call/use when energy below certain value
+        if self.energy < 40: #?
+            hungry_vector = self.get_vector(Grass, 25, grass=True)
+        else:
+            hungry_vector = np.zeros(2)
 
         # TODO: Tweak with multiplication factors
         result_vecor = 1 * seperate_vector_prey + \
                        1 * seperate_vector_predators + \
-                       1 * cohere_vector
+                       1 * cohere_vector + \
+                       1 * hungry_vector
 
         if not np.any(result_vecor):
             self.random_move()

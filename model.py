@@ -12,7 +12,7 @@ class PreyPredatorModel(Model):
                  prey_reproduction_chance=0.05, predator_death_chance=0.05,
                  prey_gain_from_food=4, predator_gain_from_food=20, food_regrowth_time=30,
                  grass_clusters=8, grass_cluster_size=100, prey_sight_on_pred=25,
-                 min_distance_between_prey=15):
+                 min_distance_between_prey=18):
 
         super().__init__()
         self.space = ContinuousSpace(width, height, torus=True)
