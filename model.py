@@ -1,18 +1,20 @@
 import random
 from mesa import Model
-from mesa.space import MultiGrid
+from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
 from agents import Prey, Predator, Grass
 from datacollector import PreyPredatorCollector
+from utils import move_coordinates
 
 class PreyPredatorModel(Model):
-    def __init__(self, width=20, height=20,
+    def __init__(self, width=500, height=500,
                  initial_prey=100, initial_predator=30,
                  prey_reproduction_chance=0.05, predator_death_chance=0.05,
-                 prey_gain_from_food=4, predator_gain_from_food=20, food_regrowth_time=30):
+                 prey_gain_from_food=4, predator_gain_from_food=20, food_regrowth_time=30,
+                 grass_clusters=8, grass_cluster_size=100):
 
         super().__init__()
-        self.grid = MultiGrid(width, height, torus=True)
+        self.space = ContinuousSpace(width, height, torus=True)
         
         self.prey_reproduction_chance = prey_reproduction_chance
         self.predator_death_chance = predator_death_chance
@@ -20,6 +22,8 @@ class PreyPredatorModel(Model):
         self.prey_gain_from_food = prey_gain_from_food
         self.predator_gain_from_food = predator_gain_from_food
         self.food_regrowth_time = food_regrowth_time
+        self.grass_clusters = grass_clusters
+        self.grass_cluster_size = grass_cluster_size
 
         self.schedule_Prey = RandomActivation(self)
         self.schedule_Predator = RandomActivation(self)
@@ -28,7 +32,7 @@ class PreyPredatorModel(Model):
         self.datacollector = PreyPredatorCollector()
         self.init_population(Prey, initial_prey)
         self.init_population(Predator, initial_predator)
-        self.init_food()
+        self.generate_grass_clusters(self.grass_clusters, self.grass_cluster_size)
 
         self.running = True
         self.datacollector.collect(self)
@@ -38,23 +42,29 @@ class PreyPredatorModel(Model):
         Method that provides an easy way of making a bunch of agents at once.
         '''
         for i in range(n):
-            x = random.randrange(self.grid.width)
-            y = random.randrange(self.grid.height)
+            x = random.randrange(self.space.width)
+            y = random.randrange(self.space.height)
 
             self.new_agent(agent_type, (x, y))
 
-    def init_food(self):
-        for _, x, y in self.grid.coord_iter():
-            fully_grown = random.choice([True, False])
+    def generate_grass_clusters(self, n_clusters=8, cluster_size=100):
+        for _ in range(n_clusters):
+            cx = random.uniform(self.space.x_min, self.space.x_max)
+            cy = random.uniform(self.space.y_min, self.space.y_max)
+            for _ in range(cluster_size):
+                angle = random.uniform(0, 360)
+                distance = random.gauss(0, 50)
+                pos = move_coordinates(cx, cy, angle, distance)
+                
+                fully_grown = random.choice([True, False])
+                if fully_grown:
+                    countdown = self.food_regrowth_time
+                else:
+                    countdown = random.randrange(self.food_regrowth_time)
 
-            if fully_grown:
-                countdown = self.food_regrowth_time
-            else:
-                countdown = random.randrange(self.food_regrowth_time)
-
-            agent = Grass(self.next_id(), self, (x, y), fully_grown, countdown)
-            self.grid.place_agent(agent, (x, y))
-            self.food_schedule.add(agent)
+                agent = Grass(self.next_id(), self, pos, fully_grown, countdown)
+                self.space.place_agent(agent, pos)
+                self.food_schedule.add(agent)
 
     def new_agent(self, agent_type, pos):
         '''
@@ -62,14 +72,14 @@ class PreyPredatorModel(Model):
         '''
         agent = agent_type(self.next_id(), self, pos)
 
-        self.grid.place_agent(agent, pos)
+        self.space.place_agent(agent, pos)
         getattr(self, f'schedule_{agent_type.__name__}').add(agent)
 
     def remove_agent(self, agent):
         '''
-        Method that removes an agent from the grid and the correct scheduler.
+        Method that removes an agent from the space and the correct scheduler.
         '''
-        self.grid.remove_agent(agent)
+        self.space.remove_agent(agent)
         getattr(self, f'schedule_{type(agent).__name__}').remove(agent)
 
     def step(self):
