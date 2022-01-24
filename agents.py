@@ -103,8 +103,10 @@ class Predator(Animal):
         for prey in prey_on_location:
             prey.die()
             self.energy += self.model.predator_gain_from_food
-            self.reproduce()
             break
+
+        if self.energy > self.model.predator_min_reproduction_energy and random.random() < self.model.predator_reproduction_chance:
+            self.reproduce()
 
         self.energy -= 1
 
