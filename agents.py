@@ -41,16 +41,7 @@ class Prey(Animal):
         self.energy = 2*self.model.prey_gain_from_food
 
     def get_vector(self, agent_type, distance=25, direction=1, grass=False):
-        in_sight = self.model.space.get_neighbors(self.pos, radius=distance)
-        if grass:
-            agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type) and agent.fully_grown]
-        else:
-            agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type)]
-
-        cohere_vector_agent = np.zeros(2)
-        for agent in agent_in_sight:
-            cohere_vector_agent += direction * np.array(self.model.space.get_heading(self.pos, agent.pos))
-        return cohere_vector_agent
+        return direction * self.model.space.get_vector_to_agents(self.pos, agent_type, distance)
 
     def step(self):
         # Seperate: Don't get to close to other prey, TODO: might massively slow down program when herd is big
