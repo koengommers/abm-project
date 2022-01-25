@@ -21,7 +21,17 @@ class OptimizedContinuousSpace(ContinuousSpace):
                 if index > idx:
                     self._type_to_indices[t][i] -= 1
 
+    def calculate_heading(self, pos, points):
+        """ Calculate vector from list of points """
+        if self.torus:
+            pos = (pos - self.center) % self.size
+            points = (points - self.center) % self.size
+
+        vectors = points - pos
+        return np.sum(vectors, axis=0)
+
     def get_vector_to_agents(self, pos, agent_type, radius):
+        """ Calculate vector from parameters agent type and a radius """
         # get points of agent type
         agent_type_indices = self._type_to_indices[agent_type.__name__]
         points_of_type = self._agent_points[agent_type_indices]
@@ -34,11 +44,27 @@ class OptimizedContinuousSpace(ContinuousSpace):
         dists = deltas[:, 0] ** 2 + deltas[:, 1] ** 2
         (idxs,) = np.where(dists <= radius ** 2)
         in_radius = points_of_type[idxs]
+        return self.calculate_heading(pos, in_radius)
 
-        # calculate vector
+
+    def get_agent_neighbors(self, pos, agent_type, radius):
+        """ Get list of agents of a certain agent type and within a radius """
+        # get points of agent type
+        agent_type_indices = self._type_to_indices[agent_type.__name__]
+        points_of_type = self._agent_points[agent_type_indices]
+
+        # get points within radius
+        pos = np.array(pos)
+        deltas = np.abs(points_of_type - pos)
         if self.torus:
-            pos = (pos - self.center) % self.size
-            in_radius = (in_radius - self.center) % self.size
+            deltas = np.minimum(deltas, self.size - deltas)
+        dists = deltas[:, 0] ** 2 + deltas[:, 1] ** 2
+        (idxs,) = np.where(dists <= radius ** 2)
+        return [self._index_to_agent[i] for i in np.array(agent_type_indices)[idxs]]
 
-        vectors = in_radius - pos
-        return np.sum(vectors, axis=0)
+    def get_heading_to_agents(self, pos, agents):
+        """ Calculate vector from a list of agents """
+        agent_indices = [self._agent_to_index[agent] for agent in agents]
+        points = self._agent_points[agent_indices]
+        return self.calculate_heading(np.array(pos), points)
+

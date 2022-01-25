@@ -41,6 +41,10 @@ class Prey(Animal):
         self.energy = 2*self.model.prey_gain_from_food
 
     def get_vector(self, agent_type, distance=25, direction=1, grass=False):
+        if grass:
+            agents = self.model.space.get_agent_neighbors(self.pos, agent_type, distance)
+            fully_grown = [agent for agent in agents if agent.fully_grown]
+            return direction * self.model.space.get_heading_to_agents(self.pos, fully_grown)
         return direction * self.model.space.get_vector_to_agents(self.pos, agent_type, distance)
 
     def step(self):
