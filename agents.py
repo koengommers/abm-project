@@ -40,17 +40,12 @@ class Prey(Animal):
         super().__init__(unique_id, model, pos)
         self.energy = 2*self.model.prey_gain_from_food
 
-    def get_vector(self, agent_type, distance=25):
-        in_sight = self.model.space.get_neighbors(self.pos, radius=distance)
-        if agent_type is Grass:
-            agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type) and agent.fully_grown]
-        else:
-            agent_in_sight = [agent for agent in in_sight if isinstance(agent, agent_type)]
-
-        cohere_vector_agent = np.zeros(2)
-        for agent in agent_in_sight:
-            cohere_vector_agent += np.array(self.model.space.get_heading(self.pos, agent.pos))
-        return cohere_vector_agent
+    def get_vector(self, agent_type, distance=25, grass=False):
+        if grass:
+            agents = self.model.space.get_agent_neighbors(self.pos, agent_type, distance)
+            fully_grown = [agent for agent in agents if agent.fully_grown]
+            return self.model.space.get_heading_to_agents(self.pos, fully_grown)
+        return self.model.space.get_vector_to_agents(self.pos, agent_type, distance)
 
     def step(self):
         # Seperate: Don't get to close to other prey, TODO: might massively slow down program when herd is big
@@ -64,7 +59,7 @@ class Prey(Animal):
         # Move towards grass, only call/use when energy below certain value and no grass on locaton.
         fully_grown_grass = [grass for grass in self.on_location(Grass) if grass.fully_grown]
         if self.energy < 40 and not fully_grown_grass: #This can probably be done better
-            hungry_vector = self.get_vector(Grass, 25)
+            hungry_vector = self.get_vector(Grass, 25, True)
         else:
             hungry_vector = np.zeros(2)
 
