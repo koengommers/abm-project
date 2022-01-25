@@ -44,7 +44,11 @@ class OptimizedContinuousSpace(ContinuousSpace):
         dists = deltas[:, 0] ** 2 + deltas[:, 1] ** 2
         (idxs,) = np.where(dists <= radius ** 2)
         in_radius = points_of_type[idxs]
-        return self.calculate_heading(pos, in_radius)
+        heading = self.calculate_heading(pos, in_radius)
+        norm = np.linalg.norm(heading)
+        if norm:
+            return heading / norm
+        return heading
 
 
     def get_agent_neighbors(self, pos, agent_type, radius):
@@ -67,4 +71,3 @@ class OptimizedContinuousSpace(ContinuousSpace):
         agent_indices = [self._agent_to_index[agent] for agent in agents]
         points = self._agent_points[agent_indices]
         return self.calculate_heading(np.array(pos), points)
-
