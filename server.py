@@ -9,11 +9,12 @@ from visualization import CanvasContinuous
 
 def animal_portrayal(color):
     return {
-        'Shape': 'circle',
+        'Shape': 'circleWithTrail',
         'Color': color,
         'Filled': 'true',
         'Layer': 1,
-        'r': 5
+        'r': 5,
+        's': 2
     }
 
 # You can change this to whatever ou want. Make sure to make the different types

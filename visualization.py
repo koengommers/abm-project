@@ -29,5 +29,11 @@ class CanvasContinuous(VisualizationElement):
             y = (y - model.space.y_min) / (model.space.y_max - model.space.y_min)
             portrayal['x'] = x
             portrayal['y'] = y
+            if portrayal['Shape'] == 'circleWithTrail':
+                fromx, fromy = agent.last_pos
+                fromx = (fromx - model.space.x_min) / (model.space.x_max - model.space.x_min)
+                fromy = (fromy - model.space.y_min) / (model.space.y_max - model.space.y_min)
+                portrayal['fromx'] = fromx
+                portrayal['fromy'] = fromy
             space_state[portrayal['Layer']].append(portrayal)
         return space_state
