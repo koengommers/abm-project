@@ -100,7 +100,8 @@ class Predator(Animal):
         self.random_move()
 
         prey_on_location = self.on_location(Prey)
-        for prey in prey_on_location:
+        sorted_prey = sorted(prey_on_location, key=lambda p: len(p.on_location(Prey, 25)))
+        for prey in sorted_prey:
             prey.die()
             self.energy += self.model.predator_gain_from_food
             break
