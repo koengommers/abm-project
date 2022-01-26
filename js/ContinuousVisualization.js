@@ -12,6 +12,8 @@ var ContinuousVisualization = function(height, width, context) {
 				this.drawCircle(p.x, p.y, p.r, p.Color, p.Filled);
       else if (p.Shape == "circleWithTrail")
         this.drawCircleWithTrail(p.x, p.y, p.fromx, p.fromy, p.Color, p.r, p.s)
+      else if (p.Shape == "cross")
+				this.drawCross(p.x, p.y, p.Color, p.r, p.s);
 		};
 
 	};
@@ -57,6 +59,20 @@ var ContinuousVisualization = function(height, width, context) {
       context.strokeStyle = color;
       context.stroke()
     }
+  }
+
+  this.drawCross = function(x, y, color, r, s) {
+    var cx = x * width;
+    var cy = y * height;
+
+    context.lineWidth = s;
+    context.beginPath();
+    context.moveTo(cx - r, cy - r);
+    context.lineTo(cx + r, cy + r);
+    context.moveTo(cx + r, cy - r);
+    context.lineTo(cx - r, cy + r);
+    context.strokeStyle = color;
+    context.stroke();
   }
 
 	this.drawRectange = function(x, y, w, h, color, fill) {

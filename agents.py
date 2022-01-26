@@ -3,6 +3,18 @@ import random
 from utils import move_coordinates, heading_to_angle
 import numpy as np
 
+class Death(Agent):
+    def __init__(self, unique_id, model, pos, animal_type):
+        super().__init__(unique_id, model)
+        self.animal_type = animal_type
+        self.pos = pos
+        self.duration = 0
+
+    def step(self):
+        self.duration += 1
+        if self.duration > 10:
+            self.model.remove_agent(self)
+
 class Animal(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)
@@ -26,6 +38,7 @@ class Animal(Agent):
         self.model.new_agent(self.__class__, self.pos)
 
     def die(self):
+        self.model.new_agent(Death, self.pos, self.__class__.__name__)
         self.model.remove_agent(self)
 
     def on_location(self, agent_type=None, radius=10):
