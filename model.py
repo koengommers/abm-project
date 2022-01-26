@@ -1,7 +1,7 @@
 import random
 from mesa import Model
-from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
+from space import OptimizedContinuousSpace
 from agents import Prey, Predator, Grass
 from datacollector import PreyPredatorCollector
 from utils import move_coordinates
@@ -11,11 +11,12 @@ class PreyPredatorModel(Model):
                  initial_prey=100, initial_predator=30,
                  prey_reproduction_chance=0.05, predator_death_chance=0.05,
                  prey_gain_from_food=4, predator_gain_from_food=20, food_regrowth_time=30,
-                 grass_clusters=8, grass_cluster_size=100):
+                 grass_clusters=8, grass_cluster_size=100, prey_sight_on_pred=25,
+                 min_distance_between_prey=18):
 
         super().__init__()
-        self.space = ContinuousSpace(width, height, torus=True)
-        
+        self.space = OptimizedContinuousSpace(width, height, torus=True)
+
         self.prey_reproduction_chance = prey_reproduction_chance
         self.predator_death_chance = predator_death_chance
 
@@ -24,6 +25,8 @@ class PreyPredatorModel(Model):
         self.food_regrowth_time = food_regrowth_time
         self.grass_clusters = grass_clusters
         self.grass_cluster_size = grass_cluster_size
+        self.prey_sight_on_pred = prey_sight_on_pred
+        self.min_distance_between_prey = min_distance_between_prey
 
         self.schedule_Prey = RandomActivation(self)
         self.schedule_Predator = RandomActivation(self)
@@ -55,7 +58,7 @@ class PreyPredatorModel(Model):
                 angle = random.uniform(0, 360)
                 distance = random.gauss(0, 50)
                 pos = move_coordinates(cx, cy, angle, distance)
-                
+
                 fully_grown = random.choice([True, False])
                 if fully_grown:
                     countdown = self.food_regrowth_time

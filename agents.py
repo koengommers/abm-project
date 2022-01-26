@@ -1,6 +1,7 @@
 from mesa import Agent
 import random
-from utils import move_coordinates
+from utils import move_coordinates, heading_to_angle
+import numpy as np
 
 class Animal(Agent):
     def __init__(self, unique_id, model, pos):
@@ -11,6 +12,12 @@ class Animal(Agent):
     def random_move(self, max_distance=25):
         distance = random.uniform(0, max_distance)
         direction = random.uniform(0, 360)
+        x, y = self.pos
+        new_pos = move_coordinates(x, y, direction, distance)
+        self.model.space.move_agent(self, new_pos)
+
+    def directed_move(self, direction, min_distance=0, max_distance=25):
+        distance = random.uniform(min_distance, max_distance)
         x, y = self.pos
         new_pos = move_coordinates(x, y, direction, distance)
         self.model.space.move_agent(self, new_pos)
@@ -33,14 +40,46 @@ class Prey(Animal):
         super().__init__(unique_id, model, pos)
         self.energy = 2*self.model.prey_gain_from_food
 
+    def get_vector(self, agent_type, distance=25, grass=False):
+        if grass:
+            agents = self.model.space.get_agent_neighbors(self.pos, agent_type, distance)
+            fully_grown = [agent for agent in agents if agent.fully_grown]
+            return self.model.space.get_heading_to_agents(self.pos, fully_grown)
+        return self.model.space.get_vector_to_agents(self.pos, agent_type, distance)
+
     def step(self):
-        self.random_move()
+        # Seperate: Don't get to close to other prey
+        seperate_vector_prey = self.get_vector(Prey, self.model.min_distance_between_prey)
+
+        # Seperate: move away from predators
+        seperate_vector_predators = self.get_vector(Predator, self.model.prey_sight_on_pred)
+
+        # Move towards other prey in area
+        cohere_vector = self.get_vector(Prey, 25)
+
+        # Move towards grass, only call/use when energy below certain value and no grass on locaton.
+        fully_grown_grass = [grass for grass in self.on_location(Grass) if grass.fully_grown]
+        if self.energy < 40 and not fully_grown_grass: #This can probably be done better
+            hungry_vector = self.get_vector(Grass, 25, True)
+        else:
+            hungry_vector = np.zeros(2)
+
+        # TODO: Tweak with multiplication factors
+        result_vecor = -1 * seperate_vector_prey + \
+                       -1 * seperate_vector_predators + \
+                       1 * cohere_vector + \
+                       1 * hungry_vector
+
+        if not np.any(result_vecor):
+            self.random_move()
+        else:
+            self.directed_move(heading_to_angle(result_vecor[0], result_vecor[1]))
+
         if random.random() < self.model.prey_reproduction_chance:
             self.reproduce()
 
         self.energy -= 1
 
-        fully_grown_grass = [grass for grass in self.on_location(Grass) if grass.fully_grown]
         if len(fully_grown_grass) > 0:
             self.energy += self.model.prey_gain_from_food
             random.choice(fully_grown_grass).eaten()
@@ -85,4 +124,3 @@ class Grass(Agent):
 
     def eaten(self):
         self.fully_grown = False
-
