@@ -1,7 +1,7 @@
 import random
 from mesa import Model
-from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
+from space import OptimizedContinuousSpace
 from agents import Prey, Predator, Grass
 from datacollector import PreyPredatorCollector
 from utils import move_coordinates
@@ -16,7 +16,7 @@ class PreyPredatorModel(Model):
                  min_distance_between_prey=18):
 
         super().__init__()
-        self.space = ContinuousSpace(width, height, torus=True)
+        self.space = OptimizedContinuousSpace(width, height, torus=True)
 
         self.prey_reproduction_chance = prey_reproduction_chance
         self.predator_death_chance = predator_death_chance
