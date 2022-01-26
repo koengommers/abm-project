@@ -37,7 +37,7 @@ def agent_portrayal(agent):
             'Color': color,
             'Filled': 'true',
             'Layer': 0,
-            'r': 3
+            'r': 10
         }
 
 # Create a 500 by 500 pixels canvas for the space
