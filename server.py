@@ -75,6 +75,8 @@ model_params = {
     'initial_predator': UserSettableParameter('slider', 'Initial Predator', 20, 10, 300),
     'prey_reproduction_chance': UserSettableParameter('slider', 'Prey reproduction chance', 0.05, 0.01, 1.0, 0.01),
     'predator_death_chance': UserSettableParameter('slider', 'Predator death chance', 0.05, 0.01, 1.0, 0.01),
+    'predator_reproduction_chance': UserSettableParameter('slider', 'Predator reproduction chance', 0.05, 0.01, 1.0, 0.01),
+    'predator_min_reproduction_energy': UserSettableParameter('slider', 'Predator min reproduction energy', 20, 0, 50),
     'food_regrowth_time': UserSettableParameter('slider', 'Food regrowth time', 30, 1, 50),
     'prey_gain_from_food': UserSettableParameter('slider', 'Prey gain from food', 10, 1, 50),
     'predator_gain_from_food': UserSettableParameter('slider', 'Predator gain from food', 30, 1, 50),
@@ -82,6 +84,7 @@ model_params = {
     'grass_cluster_size': UserSettableParameter('slider', 'Grass cluster size', 400, 10, 1000, 10),
     'prey_sight_on_pred': UserSettableParameter('slider', 'Prey sight to Predators', 25, 10, 50),
     'min_distance_between_prey': UserSettableParameter('slider', 'Min distance between prey', 18, 10, 50),
+    'predator_sight': UserSettableParameter('slider', 'Predator sight', 50, 0, 100),
 }
 
 # Create the server, and pass the grid and the graph

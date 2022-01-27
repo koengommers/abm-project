@@ -48,17 +48,17 @@ class Animal(Agent):
         else:
             return [agent for agent in neighbors if isinstance(agent, agent_type)]
 
-class Prey(Animal):
-    def __init__(self, unique_id, model, pos):
-        super().__init__(unique_id, model, pos)
-        self.energy = 2*self.model.prey_gain_from_food
-
     def get_vector(self, agent_type, distance=25, grass=False):
         if grass:
             agents = self.model.space.get_agent_neighbors(self.pos, agent_type, distance)
             fully_grown = [agent for agent in agents if agent.fully_grown]
             return self.model.space.get_heading_to_agents(self.pos, fully_grown)
         return self.model.space.get_vector_to_agents(self.pos, agent_type, distance)
+
+class Prey(Animal):
+    def __init__(self, unique_id, model, pos):
+        super().__init__(unique_id, model, pos)
+        self.energy = 2*self.model.prey_gain_from_food
 
     def step(self):
         # Seperate: Don't get to close to other prey
@@ -106,14 +106,24 @@ class Predator(Animal):
         self.energy = 2*self.model.predator_gain_from_food
 
     def step(self):
-        self.random_move()
+        if self.energy < 40:
+            towards_prey = self.get_vector(Prey, self.model.predator_sight)
+            if not np.any(towards_prey):
+                self.random_move()
+            else:
+                self.directed_move(heading_to_angle(towards_prey[0], towards_prey[1]))
+        else:
+            self.random_move()
 
         prey_on_location = self.on_location(Prey)
-        for prey in prey_on_location:
+        sorted_prey = sorted(prey_on_location, key=lambda p: len(p.on_location(Prey, 25)))
+        for prey in sorted_prey:
             prey.die()
             self.energy += self.model.predator_gain_from_food
-            self.reproduce()
             break
+
+        if self.energy > self.model.predator_min_reproduction_energy and random.random() < self.model.predator_reproduction_chance:
+            self.reproduce()
 
         self.energy -= 1
 
