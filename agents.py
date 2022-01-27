@@ -3,17 +3,29 @@ import random
 from utils import move_coordinates, heading_to_angle
 import numpy as np
 
+class Death(Agent):
+    def __init__(self, unique_id, model, pos, animal_type):
+        super().__init__(unique_id, model)
+        self.animal_type = animal_type
+        self.pos = pos
+        self.duration = 0
+
+    def step(self):
+        self.duration += 1
+        if self.duration > 10:
+            self.model.remove_agent(self)
+
 class Animal(Agent):
     def __init__(self, unique_id, model, pos):
         super().__init__(unique_id, model)
 
         self.pos = pos
 
-    def random_move(self, max_distance=25, max_turn=10):
+    def random_move(self, max_distance=25):
         distance = random.uniform(0, max_distance)
-        self.direction = random.uniform(0, 360)
+        direction = random.uniform(0, 360)
         x, y = self.pos
-        new_pos = move_coordinates(x, y, self.direction, distance)
+        new_pos = move_coordinates(x, y, direction, distance)
         self.model.space.move_agent(self, new_pos)
 
     def directed_move(self, direction, min_distance=0, max_distance=25):
@@ -26,9 +38,10 @@ class Animal(Agent):
         self.model.new_agent(self.__class__, self.pos)
 
     def die(self):
+        self.model.new_agent(Death, self.pos, self.__class__.__name__)
         self.model.remove_agent(self)
 
-    def on_location(self, agent_type=None, radius=10):
+    def on_location(self, agent_type=None, radius=25):
         neighbors = self.model.space.get_neighbors(self.pos, radius)
         if agent_type is None:
             return neighbors
@@ -48,14 +61,15 @@ class Prey(Animal):
         return self.model.space.get_vector_to_agents(self.pos, agent_type, distance)
 
     def step(self):
-        # Seperate: Don't get to close to other prey, TODO: might massively slow down program when herd is big
+        # Seperate: Don't get to close to other prey
         seperate_vector_prey = self.get_vector(Prey, self.model.min_distance_between_prey)
 
         # Seperate: move away from predators
         seperate_vector_predators = self.get_vector(Predator, self.model.prey_sight_on_pred)
 
-        # Move towards other prey in area, TODO: might massively slow down program when herd is big
+        # Move towards other prey in area
         cohere_vector = self.get_vector(Prey, 25)
+
         # Move towards grass, only call/use when energy below certain value and no grass on locaton.
         fully_grown_grass = [grass for grass in self.on_location(Grass) if grass.fully_grown]
         if self.energy < 40 and not fully_grown_grass: #This can probably be done better

@@ -9,8 +9,13 @@ class OptimizedContinuousSpace(ContinuousSpace):
 
     def place_agent(self, agent, pos):
         super().place_agent(agent, pos)
+        agent.last_pos = pos
         index = self._agent_points.shape[0] - 1
         self._type_to_indices[agent.__class__.__name__].append(index)
+
+    def move_agent(self, agent, pos):
+        agent.last_pos = agent.pos
+        super().move_agent(agent, pos)
 
     def remove_agent(self, agent):
         idx = self._agent_to_index[agent]
