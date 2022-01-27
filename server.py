@@ -84,6 +84,7 @@ model_params = {
     'grass_cluster_size': UserSettableParameter('slider', 'Grass cluster size', 400, 10, 1000, 10),
     'prey_sight_on_pred': UserSettableParameter('slider', 'Prey sight to Predators', 25, 10, 50),
     'min_distance_between_prey': UserSettableParameter('slider', 'Min distance between prey', 18, 10, 50),
+    'predator_sight': UserSettableParameter('slider', 'Predator sight', 50, 0, 100),
 }
 
 # Create the server, and pass the grid and the graph

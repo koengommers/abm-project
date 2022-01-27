@@ -13,7 +13,7 @@ class PreyPredatorModel(Model):
                  predator_reproduction_chance=0.05, predator_min_reproduction_energy=20,
                  prey_gain_from_food=4, predator_gain_from_food=20, food_regrowth_time=30,
                  grass_clusters=8, grass_cluster_size=100, prey_sight_on_pred=25,
-                 min_distance_between_prey=18):
+                 min_distance_between_prey=18, predator_sight=50):
 
         super().__init__()
         self.space = OptimizedContinuousSpace(width, height, torus=True)
@@ -30,6 +30,7 @@ class PreyPredatorModel(Model):
         self.grass_cluster_size = grass_cluster_size
         self.prey_sight_on_pred = prey_sight_on_pred
         self.min_distance_between_prey = min_distance_between_prey
+        self.predator_sight = predator_sight
 
         self.schedule_Prey = RandomActivation(self)
         self.schedule_Predator = RandomActivation(self)
