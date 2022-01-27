@@ -30,6 +30,7 @@ class PreyPredatorModel(Model):
 
         self.schedule_Prey = RandomActivation(self)
         self.schedule_Predator = RandomActivation(self)
+        self.schedule_Death = RandomActivation(self)
         self.food_schedule = RandomActivation(self)
 
         self.datacollector = PreyPredatorCollector()
@@ -69,11 +70,11 @@ class PreyPredatorModel(Model):
                 self.space.place_agent(agent, pos)
                 self.food_schedule.add(agent)
 
-    def new_agent(self, agent_type, pos):
+    def new_agent(self, agent_type, pos, *args):
         '''
         Method that creates a new agent, and adds it to the correct scheduler.
         '''
-        agent = agent_type(self.next_id(), self, pos)
+        agent = agent_type(self.next_id(), self, pos, *args)
 
         self.space.place_agent(agent, pos)
         getattr(self, f'schedule_{agent_type.__name__}').add(agent)
@@ -91,6 +92,7 @@ class PreyPredatorModel(Model):
         '''
         self.schedule_Prey.step()
         self.schedule_Predator.step()
+        self.schedule_Death.step()
         self.food_schedule.step()
 
         # Save the statistics

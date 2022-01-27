@@ -4,39 +4,50 @@ from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import UserSettableParameter
 
 from model import PreyPredatorModel
-from agents import Prey, Predator, Grass
+from agents import Death, Prey, Predator, Grass
 from visualization import CanvasContinuous
 
 def animal_portrayal(color):
     return {
-        'Shape': 'circle',
+        'Shape': 'circleWithTrail',
         'Color': color,
         'Filled': 'true',
-        'Layer': 1,
-        'r': 5
+        'Layer': 2,
+        'r': 5,
+        's': 2
     }
 
 # You can change this to whatever ou want. Make sure to make the different types
 # of agents distinguishable
 def agent_portrayal(agent):
-    if isinstance(agent, Prey):
+    if isinstance(agent, Death):
+        opacity = (10 - agent.duration)/10
+        rgb = '237, 58, 28' if agent.animal_type == 'Predator' else '0, 24, 248'
+        return {
+            'Shape': 'cross',
+            'Color': f'rgba({rgb}, {opacity})',
+            'Filled': 'true',
+            'Layer': 1,
+            'r': 5,
+            's': 2
+        }
+    elif isinstance(agent, Prey):
         return animal_portrayal('blue')
     elif isinstance(agent, Predator):
         return animal_portrayal('red')
     elif isinstance(agent, Grass):
         if agent.fully_grown:
-            color = '#009900'
             color = 'rgb(0, 150, 0)'
         else:
             growth_time = agent.model.food_regrowth_time
-            colors = ['#ffffff', '#bfe6bf', '#80cc80', '#40b340'][::-1]
-            color = colors[math.ceil((agent.countdown+1)/(growth_time+1)*4)-1]
+            opacity = (growth_time-agent.countdown)/growth_time
+            color = f'rgba(0, 150, 0, {opacity})'
         return {
             'Shape': 'circle',
             'Color': color,
             'Filled': 'true',
             'Layer': 0,
-            'r': 3
+            'r': 10
         }
 
 # Create a 500 by 500 pixels canvas for the space
