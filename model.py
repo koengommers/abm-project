@@ -9,28 +9,45 @@ from utils import move_coordinates
 class PreyPredatorModel(Model):
     def __init__(self, width=500, height=500,
                  initial_prey=100, initial_predator=30,
-                 prey_reproduction_chance=0.05, predator_death_chance=0.05,
-                 predator_reproduction_chance=0.05, predator_min_reproduction_energy=20,
-                 prey_gain_from_food=4, predator_gain_from_food=20, food_regrowth_time=30,
-                 grass_clusters=8, grass_cluster_size=100, prey_sight_on_pred=25,
-                 min_distance_between_prey=18, predator_sight=50):
+                 grass_clusters=8, grass_cluster_size=100, food_regrowth_time=30,
+                 prey_gain_from_food=4,
+                 prey_reproduction_chance=0.05, prey_death_chance=0,
+                 prey_reproduction_min=0, prey_food_search_max=40,
+                 prey_sight=25, prey_reach=10,
+                 prey_cohere_factor=1, prey_separate_factor=1, prey_separate_predators_factor=1,
+                 prey_hungry_factor=1,
+                 predator_gain_from_food=20,
+                 predator_reproduction_chance=0.05, predator_death_chance=0.05,
+                 predator_reproduction_min=20, predator_food_search_max=40,
+                 predator_sight=50, predator_reach=25):
 
         super().__init__()
         self.space = OptimizedContinuousSpace(width, height, torus=True)
 
-        self.prey_reproduction_chance = prey_reproduction_chance
-        self.predator_death_chance = predator_death_chance
-        self.predator_reproduction_chance = predator_reproduction_chance
-        self.predator_min_reproduction_energy = predator_min_reproduction_energy
-
-        self.prey_gain_from_food = prey_gain_from_food
-        self.predator_gain_from_food = predator_gain_from_food
-        self.food_regrowth_time = food_regrowth_time
         self.grass_clusters = grass_clusters
         self.grass_cluster_size = grass_cluster_size
-        self.prey_sight_on_pred = prey_sight_on_pred
-        self.min_distance_between_prey = min_distance_between_prey
+        self.food_regrowth_time = food_regrowth_time
+
+        self.prey_gain_from_food = prey_gain_from_food
+        self.prey_reproduction_chance = prey_reproduction_chance
+        self.prey_death_chance = prey_death_chance
+        self.prey_reproduction_min = prey_reproduction_min
+        self.prey_food_search_max = prey_food_search_max
+        self.prey_sight = prey_sight
+        self.prey_reach = prey_reach
+
+        self.prey_cohere_factor = prey_cohere_factor
+        self.prey_separate_factor = prey_separate_factor
+        self.prey_separate_predators_factor = prey_separate_predators_factor
+        self.prey_hungry_factor = prey_hungry_factor
+
+        self.predator_gain_from_food = predator_gain_from_food
+        self.predator_reproduction_chance = predator_reproduction_chance
+        self.predator_death_chance = predator_death_chance
+        self.predator_reproduction_min = predator_reproduction_min
+        self.predator_food_search_max = predator_food_search_max
         self.predator_sight = predator_sight
+        self.predator_reach = predator_reach
 
         self.schedule_Prey = RandomActivation(self)
         self.schedule_Predator = RandomActivation(self)

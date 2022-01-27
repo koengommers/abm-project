@@ -62,33 +62,33 @@ class Prey(Animal):
 
     def step(self):
         # Seperate: Don't get to close to other prey
-        seperate_vector_prey = self.get_vector(Prey, self.model.min_distance_between_prey)
+        seperate_vector_prey = self.get_vector(Prey, self.model.prey_sight)
 
         # Seperate: move away from predators
-        seperate_vector_predators = self.get_vector(Predator, self.model.prey_sight_on_pred)
+        seperate_vector_predators = self.get_vector(Predator, self.model.prey_sight)
 
         # Move towards other prey in area
-        cohere_vector = self.get_vector(Prey, 25)
+        cohere_vector = self.get_vector(Prey, self.model.prey_sight)
 
         # Move towards grass, only call/use when energy below certain value and no grass on locaton.
-        fully_grown_grass = [grass for grass in self.on_location(Grass) if grass.fully_grown]
-        if self.energy < 40 and not fully_grown_grass: #This can probably be done better
-            hungry_vector = self.get_vector(Grass, 25, True)
+        fully_grown_grass = [grass for grass in self.on_location(Grass, self.model.prey_reach) if grass.fully_grown]
+        if self.energy < self.model.prey_food_search_max and not fully_grown_grass: #This can probably be done better
+            hungry_vector = self.get_vector(Grass, self.model.prey_sight, True)
         else:
             hungry_vector = np.zeros(2)
 
         # TODO: Tweak with multiplication factors
-        result_vecor = -1 * seperate_vector_prey + \
-                       -1 * seperate_vector_predators + \
-                       1 * cohere_vector + \
-                       1 * hungry_vector
+        result_vector = -1 * self.model.prey_separate_factor * seperate_vector_prey + \
+                       -1 * self.model.prey_separate_predators_factor * seperate_vector_predators + \
+                       self.model.prey_cohere_factor * cohere_vector + \
+                       self.model.prey_hungry_factor * hungry_vector
 
-        if not np.any(result_vecor):
+        if not np.any(result_vector):
             self.random_move()
         else:
-            self.directed_move(heading_to_angle(result_vecor[0], result_vecor[1]))
+            self.directed_move(heading_to_angle(result_vector[0], result_vector[1]))
 
-        if random.random() < self.model.prey_reproduction_chance:
+        if self.energy > self.model.prey_reproduction_min and random.random() < self.model.prey_reproduction_chance:
             self.reproduce()
 
         self.energy -= 1
@@ -97,7 +97,7 @@ class Prey(Animal):
             self.energy += self.model.prey_gain_from_food
             random.choice(fully_grown_grass).eaten()
 
-        if self.energy < 0:
+        if self.energy < 0 or random.random() < self.model.prey_death_chance:
             self.die()
 
 class Predator(Animal):
@@ -106,7 +106,7 @@ class Predator(Animal):
         self.energy = 2*self.model.predator_gain_from_food
 
     def step(self):
-        if self.energy < 40:
+        if self.energy < self.model.predator_food_search_max:
             towards_prey = self.get_vector(Prey, self.model.predator_sight)
             if not np.any(towards_prey):
                 self.random_move()
@@ -116,13 +116,13 @@ class Predator(Animal):
             self.random_move()
 
         prey_on_location = self.on_location(Prey)
-        sorted_prey = sorted(prey_on_location, key=lambda p: len(p.on_location(Prey, 25)))
+        sorted_prey = sorted(prey_on_location, key=lambda p: len(p.on_location(Prey, self.model.predator_reach)))
         for prey in sorted_prey:
             prey.die()
             self.energy += self.model.predator_gain_from_food
             break
 
-        if self.energy > self.model.predator_min_reproduction_energy and random.random() < self.model.predator_reproduction_chance:
+        if self.energy > self.model.predator_reproduction_min and random.random() < self.model.predator_reproduction_chance:
             self.reproduce()
 
         self.energy -= 1
