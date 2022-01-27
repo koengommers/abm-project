@@ -119,6 +119,9 @@ class PreyPredatorModel(Model):
         # Save the statistics
         self.datacollector.collect(self)
 
+        if (self.schedule_Predator.get_agent_count() == 0 or self.schedule_Prey.get_agent_count() == 0):
+            self.running = False
+
     def run_model(self, step_count=200):
         '''
         Method that runs the model for a specific amount of steps.
