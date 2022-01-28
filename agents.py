@@ -41,16 +41,15 @@ class Animal(Agent):
         self.model.new_agent(Death, self.pos, self.__class__.__name__)
         self.model.remove_agent(self)
 
-    def on_location(self, agent_type=None, radius=25):
-        neighbors = self.model.space.get_neighbors(self.pos, radius)
+    def get_neighbors(self, radius, agent_type=None):
         if agent_type is None:
-            return neighbors
+            return self.model.space.get_neighbors(self.pos, radius)
         else:
-            return [agent for agent in neighbors if isinstance(agent, agent_type)]
+            return self.model.space.get_agent_neighbors(self.pos, agent_type, radius)
 
     def get_vector(self, agent_type, distance=25, grass=False):
         if grass:
-            agents = self.model.space.get_agent_neighbors(self.pos, agent_type, distance)
+            agents = self.get_neighbors(distance, agent_type)
             fully_grown = [agent for agent in agents if agent.fully_grown]
             return self.model.space.get_heading_to_agents(self.pos, fully_grown)
         return self.model.space.get_vector_to_agents(self.pos, agent_type, distance)
@@ -71,7 +70,7 @@ class Prey(Animal):
         cohere_vector = self.get_vector(Prey, self.model.prey_sight)
 
         # Move towards grass, only call/use when energy below certain value and no grass on locaton.
-        fully_grown_grass = [grass for grass in self.on_location(Grass, self.model.prey_reach) if grass.fully_grown]
+        fully_grown_grass = [grass for grass in self.get_neighbors(self.model.prey_reach, Grass) if grass.fully_grown]
         if self.energy < self.model.prey_food_search_max and not fully_grown_grass: #This can probably be done better
             hungry_vector = self.get_vector(Grass, self.model.prey_sight, True)
         else:
@@ -115,8 +114,8 @@ class Predator(Animal):
         else:
             self.random_move()
 
-        prey_on_location = self.on_location(Prey)
-        sorted_prey = sorted(prey_on_location, key=lambda p: len(p.on_location(Prey, self.model.predator_reach)))
+        prey_on_location = self.get_neighbors(self.model.predator_reach, Prey)
+        sorted_prey = sorted(prey_on_location, key=lambda p: len(p.get_neighbors(self.model.predator_reach, Prey)))
         for prey in sorted_prey:
             prey.die()
             self.energy += self.model.predator_gain_from_food

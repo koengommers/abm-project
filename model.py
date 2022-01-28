@@ -1,13 +1,13 @@
 import random
 from mesa import Model
-from mesa.time import RandomActivation
+from mesa.time import BaseScheduler, RandomActivation
 from space import OptimizedContinuousSpace
 from agents import Prey, Predator, Grass
 from datacollector import PreyPredatorCollector
 from utils import move_coordinates
 
 class PreyPredatorModel(Model):
-    def __init__(self, width=500, height=500,
+    def __init__(self, width=500, height=500, collect_data=True,
                  initial_prey=100, initial_predator=30,
                  grass_clusters=8, grass_cluster_size=100, food_regrowth_time=30,
                  prey_gain_from_food=4,
@@ -53,14 +53,18 @@ class PreyPredatorModel(Model):
         self.schedule_Predator = RandomActivation(self)
         self.schedule_Death = RandomActivation(self)
         self.food_schedule = RandomActivation(self)
+        self.schedule = BaseScheduler(self)
 
-        self.datacollector = PreyPredatorCollector()
+        self.collect_data = collect_data
+        if self.collect_data:
+            self.datacollector = PreyPredatorCollector()
         self.init_population(Prey, initial_prey)
         self.init_population(Predator, initial_predator)
         self.generate_grass_clusters(self.grass_clusters, self.grass_cluster_size)
 
         self.running = True
-        self.datacollector.collect(self)
+        if self.collect_data:
+            self.datacollector.collect(self)
 
     def init_population(self, agent_type, n):
         '''
@@ -115,9 +119,14 @@ class PreyPredatorModel(Model):
         self.schedule_Predator.step()
         self.schedule_Death.step()
         self.food_schedule.step()
+        self.schedule.step()
 
         # Save the statistics
-        self.datacollector.collect(self)
+        if self.collect_data:
+            self.datacollector.collect(self)
+
+        if (self.schedule_Predator.get_agent_count() == 0 or self.schedule_Prey.get_agent_count() == 0):
+            self.running = False
 
     def run_model(self, step_count=200):
         '''
