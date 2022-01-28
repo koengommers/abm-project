@@ -119,6 +119,7 @@ class PreyPredatorModel(Model):
         self.schedule_Predator.step()
         self.schedule_Death.step()
         self.food_schedule.step()
+        self.schedule.step()
 
         # Save the statistics
         if self.collect_data:

@@ -51,7 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', default='config.json', type=str)
     parser.add_argument('--iterations', default=10, type=int)
     parser.add_argument('--max_steps', default=1000, type=int)
-    parser.add_argument('--distinct_samples', default=500, type=int)
+    parser.add_argument('--distinct_samples', default=512, type=int)
     parser.add_argument('--out', type=str)
     args = parser.parse_args()
 
