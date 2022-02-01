@@ -21,12 +21,14 @@ def main(args):
         'Time': lambda m: m.schedule.steps
     }
 
+    params['fixed_params'].update({ 'collect_data': False })
+
     batch = SobolBatchRunner(PreyPredatorModel,
             problem,
             args.distinct_samples,
             max_steps=args.max_steps,
             iterations=args.iterations,
-            fixed_parameters=params['fixed_params'].update({ 'collect_data': False }),
+            fixed_parameters=params['fixed_params'],
             model_reporters=model_reporters)
 
     batch.run_all()
@@ -38,14 +40,16 @@ def main(args):
         timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         out = f'results_{timestamp}'
 
-    config = params.update({
+    params.update({
         'iterations': args.iterations,
         'max_steps': args.max_steps,
         'distinct_samples': args.distinct_samples
     })
     with open(out, 'wb') as out_file:
-        pickle.dump((config, results), out_file)
+        pickle.dump((params, results), out_file)
 
+    return problem, results
+ 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default='config.json', type=str)

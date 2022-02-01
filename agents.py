@@ -28,8 +28,7 @@ class Animal(Agent):
         new_pos = move_coordinates(x, y, direction, distance)
         self.model.space.move_agent(self, new_pos)
 
-    def directed_move(self, direction, min_distance=0, max_distance=25):
-        distance = random.uniform(min_distance, max_distance)
+    def directed_move(self, direction, distance=25):
         x, y = self.pos
         new_pos = move_coordinates(x, y, direction, distance)
         self.model.space.move_agent(self, new_pos)
@@ -61,7 +60,7 @@ class Prey(Animal):
 
     def step(self):
         # Seperate: Don't get to close to other prey
-        seperate_vector_prey = self.get_vector(Prey, self.model.prey_sight)
+        seperate_vector_prey = self.get_vector(Prey, 10)
 
         # Seperate: move away from predators
         seperate_vector_predators = self.get_vector(Predator, self.model.prey_sight)
@@ -115,8 +114,8 @@ class Predator(Animal):
             self.random_move()
 
         prey_on_location = self.get_neighbors(self.model.predator_reach, Prey)
-        sorted_prey = sorted(prey_on_location, key=lambda p: len(p.get_neighbors(self.model.predator_reach, Prey)))
-        for prey in sorted_prey:
+        lonely_prey = filter(lambda p: len(p.get_neighbors(self.model.predator_reach, Prey)) < 5, prey_on_location)
+        for prey in lonely_prey:
             prey.die()
             self.energy += self.model.predator_gain_from_food
             break

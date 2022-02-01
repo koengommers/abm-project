@@ -11,10 +11,10 @@
     "initial_prey": 100,
     "prey_gain_from_food": 10,
     "prey_reproduction_chance": 0.05,
-    "prey_death_chance": 0.01,
+    "prey_death_chance": 0,
     "prey_reproduction_min": 20,
     "prey_food_search_max": 40,
-    "prey_sight": 25,
+    "prey_sight": 40,
     "prey_reach": 10,
     "prey_hungry_factor": 1,
     "initial_predator": 20,
@@ -23,7 +23,7 @@
     "predator_death_chance": 0.02,
     "predator_reproduction_min": 40,
     "predator_food_search_max": 40,
-    "predator_sight": 25,
+    "predator_sight": 40,
     "predator_reach": 25
   }
 }
