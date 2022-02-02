@@ -60,7 +60,7 @@ class Prey(Animal):
 
     def step(self):
         # Seperate: Don't get to close to other prey
-        seperate_vector_prey = self.get_vector(Prey, 10)
+        seperate_vector_prey = self.get_vector(Prey, self.model.prey_reach)
 
         # Seperate: move away from predators
         seperate_vector_predators = self.get_vector(Predator, self.model.prey_sight)

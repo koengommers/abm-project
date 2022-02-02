@@ -8,18 +8,18 @@ from utils import move_coordinates
 
 class PreyPredatorModel(Model):
     def __init__(self, width=500, height=500, collect_data=True,
-                 initial_prey=100, initial_predator=30,
-                 grass_clusters=8, grass_cluster_size=100, food_regrowth_time=30,
-                 prey_gain_from_food=4,
+                 initial_prey=100, initial_predator=20,
+                 grass_clusters=8, grass_cluster_size=60, food_regrowth_time=30,
+                 prey_gain_from_food=10,
                  prey_reproduction_chance=0.05, prey_death_chance=0,
-                 prey_reproduction_min=0, prey_food_search_max=40,
-                 prey_sight=25, prey_reach=10,
+                 prey_reproduction_min=20, prey_food_search_max=40,
+                 prey_sight=40, prey_reach=10,
                  prey_cohere_factor=1, prey_separate_factor=1, prey_separate_predators_factor=1,
                  prey_hungry_factor=1,
                  predator_gain_from_food=20,
-                 predator_reproduction_chance=0.05, predator_death_chance=0.05,
-                 predator_reproduction_min=20, predator_food_search_max=40,
-                 predator_sight=50, predator_reach=25):
+                 predator_reproduction_chance=0.05, predator_death_chance=0.02,
+                 predator_reproduction_min=40, predator_food_search_max=40,
+                 predator_sight=40, predator_reach=25):
 
         super().__init__()
         self.space = OptimizedContinuousSpace(width, height, torus=True)
