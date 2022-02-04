@@ -1,6 +1,6 @@
 # Prey-Predator Model
 
-This repository contains the code for a project during the Agent-Based Modelling course at the University of Amsterdam
+This repository contains the code for a project during the Agent-Based Modelling course at the University of Amsterdam. The [slides for our presentation](https://github.com/koengommers/abm-project/blob/main/Presentation.pdf) can also be found in this repository.
 
 * Koen Gommers
 * Stijn Henckens
