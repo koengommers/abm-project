@@ -1,12 +1,19 @@
+""""""
+
 import random
+
 from mesa import Model
 from mesa.time import BaseScheduler, RandomActivation
-from space import OptimizedContinuousSpace
+
 from agents import Prey, Predator, Grass
 from datacollector import PreyPredatorCollector
+from space import OptimizedContinuousSpace
 from utils import move_coordinates
 
+
 class PreyPredatorModel(Model):
+    """Prey-Pretor model class. """
+
     def __init__(self, width=500, height=500, collect_data=True,
                  initial_prey=100, initial_predator=30,
                  grass_clusters=8, grass_cluster_size=100, food_regrowth_time=30,
@@ -20,6 +27,8 @@ class PreyPredatorModel(Model):
                  predator_reproduction_chance=0.05, predator_death_chance=0.05,
                  predator_reproduction_min=20, predator_food_search_max=40,
                  predator_sight=50, predator_reach=25):
+        """Create new model with given parameters.
+        Initializes agents and schedulers. """
 
         super().__init__()
         self.space = OptimizedContinuousSpace(width, height, torus=True)
@@ -60,16 +69,15 @@ class PreyPredatorModel(Model):
             self.datacollector = PreyPredatorCollector()
         self.init_population(Prey, initial_prey)
         self.init_population(Predator, initial_predator)
-        self.generate_grass_clusters(self.grass_clusters, self.grass_cluster_size)
+        self.generate_grass_clusters(
+            self.grass_clusters, self.grass_cluster_size)
 
         self.running = True
         if self.collect_data:
             self.datacollector.collect(self)
 
     def init_population(self, agent_type, n):
-        '''
-        Method that provides an easy way of making a bunch of agents at once.
-        '''
+        """Method that provides an easy way of making a bunch of agents at once. """
         for i in range(n):
             x = random.randrange(self.space.width)
             y = random.randrange(self.space.height)
@@ -77,6 +85,9 @@ class PreyPredatorModel(Model):
             self.new_agent(agent_type, (x, y))
 
     def generate_grass_clusters(self, n_clusters=8, cluster_size=100):
+        """Generate given amount of grass clusters. Uses gaussian distribution
+        to sample grass around initial grass position.
+        """
         for _ in range(n_clusters):
             cx = random.uniform(self.space.x_min, self.space.x_max)
             cy = random.uniform(self.space.y_min, self.space.y_max)
@@ -96,25 +107,20 @@ class PreyPredatorModel(Model):
                 self.food_schedule.add(agent)
 
     def new_agent(self, agent_type, pos, *args):
-        '''
-        Method that creates a new agent, and adds it to the correct scheduler.
-        '''
+        """Method that creates a new agent, and adds it to the correct scheduler. """
         agent = agent_type(self.next_id(), self, pos, *args)
 
         self.space.place_agent(agent, pos)
         getattr(self, f'schedule_{agent_type.__name__}').add(agent)
 
     def remove_agent(self, agent):
-        '''
-        Method that removes an agent from the space and the correct scheduler.
-        '''
+        """Method that removes an agent from the space and the correct scheduler. """
         self.space.remove_agent(agent)
         getattr(self, f'schedule_{type(agent).__name__}').remove(agent)
 
     def step(self):
-        '''
-        Method that calls the step method for each of the prey, and then for each of the predators.
-        '''
+        """Method that calls the step method for each of the agent types.
+        """
         self.schedule_Prey.step()
         self.schedule_Predator.step()
         self.schedule_Death.step()
@@ -125,12 +131,11 @@ class PreyPredatorModel(Model):
         if self.collect_data:
             self.datacollector.collect(self)
 
-        if (self.schedule_Predator.get_agent_count() == 0 or self.schedule_Prey.get_agent_count() == 0):
+        if (self.schedule_Predator.get_agent_count() == 0 or
+                self.schedule_Prey.get_agent_count() == 0):
             self.running = False
 
     def run_model(self, step_count=200):
-        '''
-        Method that runs the model for a specific amount of steps.
-        '''
+        """Method that runs the model for a specific amount of steps. """
         for i in range(step_count):
             self.step()
