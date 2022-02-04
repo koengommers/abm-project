@@ -10,6 +10,7 @@ from multiprocess import Pool, cpu_count
 from mesa.batchrunner import BatchRunnerMP
 from SALib.sample import saltelli
 
+
 class SobolBatchRunner(BatchRunnerMP):
     """SobolBatchRunner: extend BatchRunnerMP to fix import and
     use saltelli sample as variable parameters. """
@@ -22,7 +23,8 @@ class SobolBatchRunner(BatchRunnerMP):
         self.pool = Pool(self.processes)
 
         param_values = saltelli.sample(problem, distinct_samples)
-        self.parameters_list = [{name: val for name, val in zip(problem['names'], vals)} for vals in param_values]
+        self.parameters_list = [{name: val for name, val in zip(
+            problem['names'], vals)} for vals in param_values]
 
     def _prepare_report_table(self, vars_dict, extra_cols=None):
         """
@@ -34,7 +36,8 @@ class SobolBatchRunner(BatchRunnerMP):
         extra_cols = ["Run"] + (extra_cols or [])
         index_cols = []
         if self.parameters_list:
-            index_cols = list(self.parameters_list[0].keys()) + list(self.fixed_parameters.keys())
+            index_cols = list(self.parameters_list[0].keys(
+            )) + list(self.fixed_parameters.keys())
         index_cols += extra_cols
 
         records = []
@@ -79,7 +82,8 @@ class SobolBatchRunner(BatchRunnerMP):
                 for iter in range(self.iterations):
                     kwargs_repeated = kwargs.copy()
                     all_kwargs.append(
-                        [self.model_cls, kwargs_repeated, self.max_steps, iter * count + i]
+                        [self.model_cls, kwargs_repeated,
+                            self.max_steps, iter * count + i]
                     )
 
         elif len(self.fixed_parameters):

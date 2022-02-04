@@ -10,6 +10,7 @@ import numpy as np
 
 from mesa.space import ContinuousSpace
 
+
 class OptimizedContinuousSpace(ContinuousSpace):
     """Extends ContinuousSpace for better efficiency using numpy """
 
