@@ -27,14 +27,9 @@ class OptimizedContinuousSpace(ContinuousSpace):
         self._type_to_indices[agent.__class__.__name__].append(index)
 
     def move_agent(self, agent, pos):
-         """Move an agent from its current position to a new position.
-
-        Args:
-            agent: The agent object to move.
-            pos: Coordinate tuple to move the agent to.
-        """
-        agent.last_pos = agent.pos
-        super().move_agent(agent, pos)
+         """Move an agent from its current position to a new position. """
+         agent.last_pos = agent.pos
+         super().move_agent(agent, pos)
 
     def remove_agent(self, agent):
         """Remove an agent from the simulation. """
@@ -74,7 +69,6 @@ class OptimizedContinuousSpace(ContinuousSpace):
         if norm:
             return heading / norm
         return heading
-
 
     def get_agent_neighbors(self, pos, agent_type, radius):
         """ Get list of agents of a certain agent type and within a radius. """

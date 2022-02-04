@@ -160,7 +160,7 @@ class Prey(Animal):
 
         # Result vecor calculated from the four vectors calculated above,
         # multiplied with specific factors.
-        result_vector =
+        result_vector = \
             -1 * self.model.prey_separate_factor * seperate_vector_prey + \
             -1 * self.model.prey_separate_predators_factor * seperate_vector_predators + \
             self.model.prey_cohere_factor * cohere_vector + \
@@ -243,8 +243,7 @@ class Predator(Animal):
 
 
 class Grass(Agent):
-    """ Grass class: agent designed to be eaten after which it will regrow.
-    """
+    """ Grass class: agent designed to be eaten after which it will regrow. """
 
     def __init__(self, unique_id, model, pos, fully_grown, countdown):
         """Create one patch of grass.
