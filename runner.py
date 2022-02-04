@@ -1,9 +1,15 @@
+"""
+Implements the script to run multiple simulations needed for analysis.
+"""
+
 import argparse
 from datetime import datetime
 import json
 import pickle
+
 from batchrunner import SobolBatchRunner
 from model import PreyPredatorModel
+
 
 def main(args):
     with open(args.config) as config_file:
@@ -21,15 +27,15 @@ def main(args):
         'Time': lambda m: m.schedule.steps
     }
 
-    params['fixed_params'].update({ 'collect_data': False })
+    params['fixed_params'].update({'collect_data': False})
 
     batch = SobolBatchRunner(PreyPredatorModel,
-            problem,
-            args.distinct_samples,
-            max_steps=args.max_steps,
-            iterations=args.iterations,
-            fixed_parameters=params['fixed_params'],
-            model_reporters=model_reporters)
+                             problem,
+                             args.distinct_samples,
+                             max_steps=args.max_steps,
+                             iterations=args.iterations,
+                             fixed_parameters=params['fixed_params'],
+                             model_reporters=model_reporters)
 
     batch.run_all()
 
@@ -45,11 +51,12 @@ def main(args):
         'max_steps': args.max_steps,
         'distinct_samples': args.distinct_samples
     })
+
     with open(out, 'wb') as out_file:
         pickle.dump((params, results), out_file)
 
     return problem, results
- 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', default='config.json', type=str)
