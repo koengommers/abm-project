@@ -1,13 +1,19 @@
+"""
+Launches server for visualization of the model with population and energy charts.
+"""
+
 import math
+
 from mesa.visualization.modules import ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import UserSettableParameter
 
-from model import PreyPredatorModel
 from agents import Death, Prey, Predator, Grass
+from model import PreyPredatorModel
 from visualization import CanvasContinuous
 
 def animal_portrayal(color):
+    """Returns visualization properties of animals. """
     return {
         'Shape': 'circleWithTrail',
         'Color': color,
@@ -17,9 +23,8 @@ def animal_portrayal(color):
         's': 2
     }
 
-# You can change this to whatever ou want. Make sure to make the different types
-# of agents distinguishable
 def agent_portrayal(agent):
+    """Returns visualization properties of agents. """
     if isinstance(agent, Death):
         opacity = (10 - agent.duration)/10
         rgb = '237, 58, 28' if agent.animal_type == 'Predator' else '0, 24, 248'

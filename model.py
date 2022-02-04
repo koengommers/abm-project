@@ -1,4 +1,9 @@
-""""""
+"""
+The model class used in this project.
+
+Core class: PreyPredatorModel
+
+"""
 
 import random
 
