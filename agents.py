@@ -160,10 +160,11 @@ class Prey(Animal):
 
         # Result vecor calculated from the four vectors calculated above,
         # multiplied with specific factors.
-        result_vector = -1 * self.model.prey_separate_factor * seperate_vector_prey + \
-                       -1 * self.model.prey_separate_predators_factor * seperate_vector_predators + \
-                       self.model.prey_cohere_factor * cohere_vector + \
-                       self.model.prey_hungry_factor * hungry_vector
+        result_vector =
+            -1 * self.model.prey_separate_factor * seperate_vector_prey + \
+            -1 * self.model.prey_separate_predators_factor * seperate_vector_predators + \
+            self.model.prey_cohere_factor * cohere_vector + \
+            self.model.prey_hungry_factor * hungry_vector
 
         # Move randomly when result vector is zero.
         # Else move towards calculated heading.
@@ -215,14 +216,16 @@ class Predator(Animal):
             if not np.any(towards_prey):
                 self.random_move()
             else:
-                self.directed_move(heading_to_angle(towards_prey[0], towards_prey[1]))
+                self.directed_move(heading_to_angle(
+                    towards_prey[0], towards_prey[1]))
         else:
             self.random_move()
 
         # Get list with prey on location with less than 5 other prey
         # surrounding it. Eat only first prey in the list.
         prey_on_location = self.get_neighbors(self.model.predator_reach, Prey)
-        lonely_prey = filter(lambda p: len(p.get_neighbors(self.model.predator_reach, Prey)) < 5, prey_on_location)
+        lonely_prey = filter(lambda p: len(p.get_neighbors(
+            self.model.predator_reach, Prey)) < 5, prey_on_location)
         for prey in lonely_prey:
             prey.die()
             self.energy += self.model.predator_gain_from_food
