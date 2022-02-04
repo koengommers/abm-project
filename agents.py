@@ -65,7 +65,7 @@ class Animal(Agent):
         """Moves the animal towards a new position.
 
         Args:
-            direction (int): angle in degrees
+            direction (float): angle in degrees
             distance (float): Distance to move in direction
         """
         x, y = self.pos
